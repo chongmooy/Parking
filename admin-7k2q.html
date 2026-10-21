@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>예약 개설 관리</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+  <link rel="stylesheet" href="apply.css?v=4">
+  <link rel="stylesheet" href="admin.css?v=13">
+</head>
+<body>
+<div class="page admin">
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">P</span>
+      <span>예약 개설 관리</span>
+    </div>
+    <div class="who" id="who" hidden>
+      <span id="whoEmail"></span>
+      <a class="back" href="check-7k2q.html">확인 앱</a>
+      <button type="button" class="small" id="logoutBtn">로그아웃</button>
+    </div>
+  </header>
+
+  <div class="notice" id="setupNotice" hidden></div>
+
+  <!-- 로그인 -->
+  <main id="loginView" hidden>
+    <form class="step login-box" id="loginForm" novalidate>
+      <h2>관리자 로그인</h2>
+      <p class="muted">예약 개설일은 관리자로 지정된 계정만 바꿀 수 있어요.</p>
+      <label class="field">이메일<input id="lEmail" type="email" autocomplete="username" required></label>
+      <label class="field">비밀번호<input id="lPass" type="password" autocomplete="current-password" required></label>
+      <p class="form-error" id="loginError" role="alert"></p>
+      <button type="submit" class="primary" id="loginBtn">로그인</button>
+    </form>
+  </main>
+
+  <!-- 관리 화면 -->
+  <main id="adminView" hidden>
+    <section class="step" aria-labelledby="calTitle">
+      <div class="cal-head">
+        <button type="button" class="nav" id="prevMonth" aria-label="이전 달">‹</button>
+        <h2 id="calTitle"></h2>
+        <button type="button" class="nav" id="nextMonth" aria-label="다음 달">›</button>
+      </div>
+      <ul class="legend">
+        <li><i class="sw open"></i>예약 받는 중</li>
+        <li><i class="sw sched"></i>공개 예정</li>
+        <li><i class="sw closed"></i>닫힘</li>
+      </ul>
+      <div class="cal-grid dow" aria-hidden="true"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>
+      <div class="cal-grid" id="calGrid" role="grid" aria-labelledby="calTitle"></div>
+      <div class="quick">
+        <button type="button" class="small" id="pickWeekend">이 달 토·일 모두 선택</button>
+        <button type="button" class="small" id="pickClear">선택 해제</button>
+      </div>
+    </section>
+
+    <section class="step actions" aria-labelledby="actTitle">
+      <h2 id="actTitle"><span id="selCount">0</span>일 선택됨</h2>
+      <p class="sel-list" id="selList">달력에서 날짜를 눌러 고르세요. (지난 날짜는 고를 수 없어요)</p>
+      <div class="act-block" aria-labelledby="pubTitle">
+        <h3 id="pubTitle"><span class="step-no">1</span>예약 공개 <span class="muted-in">신청 페이지에 날짜를 열고 닫기</span></h3>
+        <fieldset class="when">
+          <legend class="sr">공개 시점</legend>
+          <label class="opt"><input type="radio" name="when" value="now" checked> 바로 공개</label>
+          <label class="opt"><input type="radio" name="when" value="later"> 공개 일시 지정</label>
+          <input type="datetime-local" id="opensAt" aria-label="공개 일시 (이 시각부터 신청 가능)">
+          <p class="when-hint" id="whenHint"></p>
+        </fieldset>
+        <p class="form-error" id="actError" role="alert"></p>
+        <div class="row-buttons">
+          <button type="button" class="primary" id="openBtn" disabled>바로 열기</button>
+          <button type="button" id="closeBtn" disabled>선택한 날 닫기</button>
+        </div>
+        <p class="toast" id="toast" role="status"></p>
+      </div>
+
+      <div class="act-block" aria-labelledby="capTitle">
+        <h3 id="capTitle"><span class="step-no">2</span>시간대별 정원 <span class="muted-in">기본 200 · 공개와 따로 저장</span></h3>
+        <fieldset class="caps" id="capsBox" disabled>
+          <legend class="sr">시간대별 정원 (비워 두면 그대로)</legend>
+          <label class="cap"><span>09~12시</span><input type="number" id="cap09" min="0" max="100000" step="1" inputmode="numeric"><small id="bk09"></small></label>
+          <label class="cap"><span>12~15시</span><input type="number" id="cap12" min="0" max="100000" step="1" inputmode="numeric"><small id="bk12"></small></label>
+          <label class="cap"><span>15~18시</span><input type="number" id="cap15" min="0" max="100000" step="1" inputmode="numeric"><small id="bk15"></small></label>
+        </fieldset>
+        <p class="form-error" id="capError" role="alert"></p>
+        <button type="button" class="cap-save" id="capBtn" disabled>정원 저장</button>
+        <p class="toast" id="capToast" role="status"></p>
+      </div>
+    </section>
+
+    <section class="step" aria-labelledby="sumTitle">
+      <h2 id="sumTitle">앞으로 열려 있는 날짜</h2>
+      <p class="muted">시간대별 숫자는 <b>예약 건수 / 정원</b>이에요.</p>
+      <div id="summary" class="summary-list"><p class="muted">불러오는 중…</p></div>
+    </section>
+
+    <section class="step" aria-labelledby="statTitle">
+      <div class="stat-head">
+        <h2 id="statTitle">접속 현황</h2>
+        <span class="muted" id="statAt"></span>
+      </div>
+      <div class="tiles">
+        <div class="tile live"><span class="t-label"><i class="dot-live" aria-hidden="true"></i>지금 보는 사람</span><b id="sLive">–</b><span class="t-sub" id="sLivePages">최근 5분</span></div>
+        <div class="tile"><span class="t-label">오늘 페이지뷰</span><b id="sViews">–</b><span class="t-sub" id="sViewPages"></span></div>
+        <div class="tile"><span class="t-label">오늘 방문자</span><b id="sVisitors">–</b><span class="t-sub">기기 기준</span></div>
+      </div>
+      <h3 class="stat-sub">오늘 시간대별 페이지뷰</h3>
+      <div class="hours" id="sHours" aria-label="오늘 시간대별 페이지뷰"></div>
+      <h3 class="stat-sub">최근 7일</h3>
+      <div class="days" id="sDays"></div>
+      <p class="muted small">안내·예약 신청·예약확인증 페이지를 연 횟수예요. 이름·연락처·IP는 저장하지 않고, 기록은 90일 뒤 지워져요.</p>
+    </section>
+  </main>
+</div>
+
+<script src="supabase.js"></script>
+<script src="config.js"></script>
+<script src="admin.js?v=11"></script>
+</body>
+</html>
